@@ -7,8 +7,24 @@ from io import BytesIO
 import urllib.parse
 import os
 
+from flask import Flask
+import threading
+
 from dotenv import load_dotenv
 load_dotenv()
+
+# ===== Flask（生存確認サーバー）=====
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "OK"
+
+def run_web():
+    app.run(host="0.0.0.0", port=10000)
+
+# ===== Flaskを別スレッドで起動（重要）=====
+threading.Thread(target=run_web).start()
 
 # ===== TOKEN =====
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
@@ -76,6 +92,7 @@ async def create_event(
     event.add("summary", title)
     event.add("dtstart", start_dt)
     event.add("dtend", end_dt)
+
     if description:
         event.add("description", description)
 
